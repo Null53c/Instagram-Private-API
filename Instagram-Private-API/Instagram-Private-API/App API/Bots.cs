@@ -93,14 +93,29 @@ namespace Instagram_Private_API
 
         public static void WatchAllStories()
         {
-            Story.getUserStoryFeed(Story.getReelsTrayFeed());
-            JObject o = JObject.Parse(Globals.LastResponse);
-            string itemSourceId = o["reel"]["user"]["pk"].ToString();
-            string itemId = o["reel"]["items"][0]["id"].ToString();
-            string itemTakenAt = o["reel"]["items"][0]["taken_at"].ToString();
+            Story.getReelsTrayFeed();
 
+                var o = JObject.Parse(Globals.LastResponse)["tray"];
 
-            Story.markMediaSeen(itemSourceId, itemId, itemTakenAt);
+                foreach(var tray in o)
+                {
+                    var user_pk = tray["user"]["pk"];
+                    Story.getUserStoryFeed(user_pk.ToString());
+
+                    var items = JObject.Parse(Globals.LastResponse)["reel"]["items"];
+                    
+                    foreach(var item in items)
+                    {
+                        string itemSourceId = item["pk"].ToString();
+                        string itemId = item["id"].ToString();
+                        string itemTakenAt = item["taken_at"].ToString();
+
+                        Story.markMediaSeen(itemSourceId, itemId, itemTakenAt);
+                        Console.WriteLine(Globals.LastResponse);
+
+                        Thread.Sleep(1500);
+                    }
+                }
         }
     }
 }
